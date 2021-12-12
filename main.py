@@ -59,7 +59,7 @@ while True:
         except DownloadError:
             pass
 
-    song_file = load_music_file(f"{title}.wav")
+    song_file = load_music_file(f"{download_dir}/{title}.wav")
 
     song_file["title"] = title
     song_file["artist"] = artist
