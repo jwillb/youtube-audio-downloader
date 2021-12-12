@@ -1,12 +1,16 @@
 from youtube_search import YoutubeSearch as yt_search
 from yt_dlp import YoutubeDL
 from yt_dlp.utils import DownloadError
+from music_tag import load_file as load_music_file
 
 category_list = ("sponsor", "music_offtopic", "selfpromo")
 
+download_dir = input("Enter Download Directory (Leave blank or enter . for current working directory): ")
+if download_dir == "":
+    download_dir = "."
+
 options = {
-    "format": "bestaudio[ext=webm]/ogg",
-    "outtmpl": "%(title)s.%(ext)s",
+    "format": "bestaudio",
     "postprocessors": [{
             "key": "SponsorBlock",
             "categories": category_list
@@ -41,12 +45,11 @@ while True:
         choice = 1
 
     suffix = results[int(choice) - 1]["url_suffix"]
+    
+    title = input("Enter title: ")
+    artist = input("Enter artist: ")
 
-    title_choice = input("Create a custom title? [y/N]: ")
-    if title_choice.lower() == 'y':
-        options["outtmpl"] = input("Enter custom title: ") + ".%(ext)s"
-    else:
-        options["outtmpl"] = "%(title)s.%(ext)s"
+    options["outtmpl"] = f"{download_dir}/{title}.%(ext)s"
     
     while True:
         try:
@@ -55,6 +58,12 @@ while True:
             break
         except DownloadError:
             pass
+
+    song_file = load_music_file(f"{title}.wav")
+
+    song_file["title"] = title
+    song_file["artist"] = artist
+    song_file.save()
 
     again = input("Continue? [Y/n]: ")
     if again.lower() == "n":
