@@ -21,7 +21,7 @@ options = {
         },
         {
             "key": "FFmpegExtractAudio",
-            "preferredcodec": "wav"
+            "preferredcodec": "mp3"
         }
     ]
 }
@@ -59,7 +59,7 @@ while True:
         except DownloadError:
             pass
 
-    song_file = load_music_file(f"{download_dir}/{title}.wav")
+    song_file = load_music_file(f"{download_dir}/{title}.mp3")
 
     song_file["title"] = title
     song_file["artist"] = artist
