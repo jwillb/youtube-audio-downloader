@@ -1,7 +1,6 @@
 from youtube_search import YoutubeSearch as yt_search
-from yt_dlp import YoutubeDL
-from yt_dlp.utils import DownloadError
-from music_tag import load_file as load_music_file
+
+from downloader import Downloader
 
 category_list = ("sponsor", "music_offtopic", "selfpromo")
 
@@ -26,47 +25,55 @@ options = {
     ]
 }
 
+yt_download = Downloader(download_dir, options)
+
 proxy_choice = input("Use a proxy? [y/N]: ")
 if proxy_choice.lower() == 'y':
-    options["proxy"] = input("Enter proxy URL: ")
+    Downloader.setProxy(input("Enter proxy URL: "))
 else:
     pass
 
-while True:
-    query = input("Search YouTube: ")
-
-    results = yt_search(query, max_results = 10).to_dict()
-
-    for i in range(len(results)):
-        print(f"{i + 1}. " + results[i]["title"] + "\t(Uploaded by " + results[i]["channel"] + ")")
-
-    choice = input("Which one would you like to choose? [1]: ")
-    if choice == "":
-        choice = 1
-
-    suffix = results[int(choice) - 1]["url_suffix"]
+if input("Batch Download? [y/N]: ").lower() == 'y':
+    downloads = []
     
-    title = input("Enter title: ")
-    artist = input("Enter artist: ")
+    for line in open(input("File Name: "), 'r').readlines():
+        term = line.strip('\n')
+        print(f"Search term: {term}")
+        results = yt_search(term, max_results=10).to_dict()
+        
+        for i in range(len(results)):
+            print(f"{i + 1}. " + results[i]["title"] + "\t(Uploaded by " + results[i]["channel"] + ")")
+        
+        choice = input("Which one would you like to choose? [1]: ")
+        
+        if choice == "":
+            choice = 1
+            
+        url = "https://youtube.com" + results[int(choice) - 1]["url_suffix"]
+        title = input("Enter title: ")
+        artist = input("Enter artist: ")
 
-    options["outtmpl"] = f"{download_dir}/{title}.%(ext)s"
-    
-    while True:
-        try:
-            with YoutubeDL(options) as yt_dl:
-                yt_dl.download(["https://youtube.com" + suffix])
-            break
-        except DownloadError:
-            pass
+        downloads.append([url, title, artist])
 
-    song_file = load_music_file(f"{download_dir}/{title}.mp3")
-
-    song_file["title"] = title
-    song_file["artist"] = artist
-    song_file.save()
-
-    again = input("Continue? [Y/n]: ")
-    if again.lower() == "n":
-        exit()
-    else:
-        pass
+    for i in range(len(downloads)):
+        yt_download.downloadFile(downloads[i][0], downloads[i][1], downloads[i][2])
+else:
+    again = 'y'
+    while again.lower() == 'y':
+        term = input("Search term: ")
+        results = yt_search(term, max_results=10).to_dict()
+        
+        for i in range(len(results)):
+            print(f"{i + 1}. " + results[i]["title"] + "\t(Uploaded by " + results[i]["channel"] + ")")
+        
+        choice = input("Which one would you like to choose? [1]: ")
+        
+        if choice == "":
+            choice = 1
+                
+        url = "https://youtube.com" + results[int(choice) - 1]["url_suffix"]
+        title = input("Enter title: ")
+        artist = input("Enter artist: ")
+            
+        yt_download.downloadFile(url, title, artist)
+        again = input("Continue? [y/N]: ")
