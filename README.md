@@ -1,6 +1,6 @@
 # youtube-audio-downloader
 
-A little console app I made to download songs and podcasts from YouTube that automatically removes sponsors and silence (in the case of music videos)
+A little console app I made to download songs and podcasts from YouTube via yt-dlp's Python implementation that automatically removes sponsors and silence using SponsorBlock (in the case of music videos). 
 
 ## Installation / Quick Start
 1. Download both the `downloader.py` file and the `main.py` file and place them in the same directory.
